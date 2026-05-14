@@ -345,5 +345,4 @@ def internal_error(error):
 def how_it_works():
     return render_template('how_it_works.html')
 
-if __name__ == '__main__':
-    app.run(debug=True)
+app=app
