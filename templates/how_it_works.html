@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Ghar Seva — How It Works</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <style>
+        /* ===== HOW IT WORKS PAGE STYLES ===== */
+        .hiw-page {
+            padding-top: var(--nav-h);
+            min-height: 100vh;
+        }
+
+        /* ---- STEPS SECTION ---- */
+        .hiw-steps-wrap {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 56px 24px 80px;
+        }
+
+        .hiw-section-label {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--orange);
+            margin-bottom: 12px;
+        }
+
+        .hiw-section-title {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 64px;
+        }
+
+        /* ---- SINGLE STEP CARD ---- */
+        .hiw-step {
+            display: grid;
+            grid-template-columns: 1fr 80px 1fr;
+            align-items: center;
+            gap: 0;
+            margin-bottom: 0;
+        }
+
+        /* Alternate layout — even steps flip */
+        .hiw-step.flip {
+            direction: rtl;
+        }
+
+        .hiw-step.flip > * {
+            direction: ltr;
+        }
+
+        .hiw-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 36px 40px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hiw-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--orange), var(--orange-dark));
+            border-radius: 28px 28px 0 0;
+        }
+
+        .hiw-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 40px rgba(255, 107, 53, 0.12);
+        }
+
+        .hiw-card-num {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--orange);
+            margin-bottom: 16px;
+        }
+
+        .hiw-card-icon {
+            font-size: 52px;
+            margin-bottom: 18px;
+            line-height: 1;
+        }
+
+        .hiw-card h3 {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+        }
+
+        .hiw-card p {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        .hiw-card-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 20px;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            background: var(--orange-light);
+            color: var(--orange-dark);
+        }
+
+        /* Connector in the middle column */
+        .hiw-connector {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            position: relative;
+        }
+
+        .hiw-connector-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+            color: white;
+            font-weight: 900;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(255, 107, 53, 0.35);
+            flex-shrink: 0;
+            z-index: 1;
+        }
+
+        .hiw-connector-line {
+            width: 2px;
+            height: 60px;
+            background: linear-gradient(to bottom, var(--orange), transparent);
+        }
+
+        .hiw-connector-line.top {
+            background: linear-gradient(to bottom, transparent, var(--orange));
+        }
+
+        /* ---- LOCK WARNING BANNER ---- */
+        .hiw-lock-banner {
+            background: linear-gradient(135deg, #fff8f0, #fff3e8);
+            border: 1.5px solid rgba(255, 107, 53, 0.25);
+            border-radius: 20px;
+            padding: 28px 36px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            max-width: 860px;
+            margin: -20px auto 60px;
+        }
+
+        .hiw-lock-icon {
+            font-size: 48px;
+            flex-shrink: 0;
+        }
+
+        .hiw-lock-text h4 {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .hiw-lock-text p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .hiw-lock-btn {
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        /* ---- PAYMENT SECTION ---- */
+        .hiw-payment-section {
+            background: #1a1714;
+            padding: 80px 24px;
+        }
+
+        .hiw-payment-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .hiw-payment-inner h2 {
+            font-size: 36px;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+
+        .hiw-payment-inner > p {
+            color: #a09890;
+            font-size: 16px;
+            margin-bottom: 48px;
+        }
+
+        .hiw-payment-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .hiw-pay-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 22px;
+            padding: 32px 24px;
+            text-align: center;
+            transition: background 0.2s;
+        }
+
+        .hiw-pay-card:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .hiw-pay-icon {
+            font-size: 44px;
+            margin-bottom: 16px;
+        }
+
+        .hiw-pay-card h4 {
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .hiw-pay-card p {
+            font-size: 13px;
+            color: #a09890;
+            line-height: 1.6;
+        }
+
+        /* ---- FAQ ---- */
+        .hiw-faq-section {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 80px 24px;
+        }
+
+        .hiw-faq-section h2 {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .faq-item {
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .faq-question {
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 22px 28px;
+            text-align: left;
+            font-family: 'Poppins', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            transition: background 0.2s;
+        }
+
+        .faq-question:hover {
+            background: #fef7f2;
+        }
+
+        .faq-chevron {
+            font-size: 12px;
+            color: var(--orange);
+            transition: transform 0.25s;
+            flex-shrink: 0;
+        }
+
+        .faq-item.open .faq-chevron {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            display: none;
+            padding: 0 28px 22px;
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.75;
+        }
+
+        .faq-item.open .faq-answer {
+            display: block;
+        }
+
+        /* ---- CTA BOTTOM ---- */
+        .hiw-cta {
+            background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+            padding: 72px 24px;
+            text-align: center;
+        }
+
+        .hiw-cta h2 {
+            font-size: 38px;
+            font-weight: 900;
+            color: white;
+            letter-spacing: -1px;
+            margin-bottom: 14px;
+        }
+
+        .hiw-cta p {
+            font-size: 16px;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 36px;
+        }
+
+        .hiw-cta-btns {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-white {
+            background: white;
+            color: var(--orange-dark);
+            font-weight: 800;
+            padding: 14px 36px;
+            border-radius: 50px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.2s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .btn-white:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(0,0,0,0.2);
+        }
+
+        .btn-outline-white {
+            background: transparent;
+            color: white;
+            font-weight: 700;
+            padding: 14px 36px;
+            border-radius: 50px;
+            font-size: 16px;
+            border: 2px solid rgba(255,255,255,0.6);
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .btn-outline-white:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: white;
+        }
+
+        /* ---- RESPONSIVE ---- */
+        @media (max-width: 900px) {
+            /* Keep the same 3-col grid: connector(number) left, card right */
+            .hiw-step {
+                grid-template-columns: 52px 1fr;
+                grid-template-rows: auto;
+                align-items: start;
+                margin-bottom: 8px;
+            }
+
+            /* Normal step: col1=connector, col2=card, col3(empty div) hidden */
+            .hiw-step > div:nth-child(1) { grid-column: 2; grid-row: 1; }
+            .hiw-step > div:nth-child(2) { grid-column: 1; grid-row: 1; }
+            .hiw-step > div:nth-child(3) { display: none; }
+
+            /* Flip step: same layout, direction reset */
+            .hiw-step.flip { direction: ltr; }
+            .hiw-step.flip > div:nth-child(1) { grid-column: 2; grid-row: 1; }
+            .hiw-step.flip > div:nth-child(2) { grid-column: 1; grid-row: 1; }
+            .hiw-step.flip > div:nth-child(3) { display: none; }
+
+            /* Connector becomes a vertical strip on left */
+            .hiw-connector {
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                height: 100%;
+                padding-top: 20px;
+                gap: 0;
+            }
+            .hiw-connector-line {
+                width: 2px;
+                height: 40px;
+                background: linear-gradient(to bottom, var(--orange), transparent);
+            }
+            .hiw-connector-line.top {
+                background: linear-gradient(to bottom, transparent, var(--orange));
+            }
+            .hiw-connector-circle {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+                flex-shrink: 0;
+            }
+
+            .hiw-payment-grid { grid-template-columns: 1fr 1fr; }
+            .hiw-lock-banner { flex-direction: column; text-align: center; }
+            .hiw-lock-btn { margin-left: 0; }
+            .hiw-section-title { font-size: 28px; }
+        }
+
+        @media (max-width: 600px) {
+            .hiw-steps-wrap { padding: 40px 12px 60px; }
+            .hiw-section-title { font-size: 22px; }
+            .hiw-step { grid-template-columns: 44px 1fr; }
+            .hiw-card {
+                padding: 22px 18px;
+                border-radius: 18px;
+            }
+            .hiw-card h3 { font-size: 17px; }
+            .hiw-card p { font-size: 13.5px; line-height: 1.65; }
+            .hiw-card-icon { font-size: 36px; margin-bottom: 12px; }
+            .hiw-card-num { font-size: 10px; margin-bottom: 10px; }
+            .hiw-card-tag { font-size: 11px; margin-top: 14px; }
+            .hiw-connector-circle { width: 36px; height: 36px; font-size: 15px; }
+            .hiw-connector-line { height: 28px; }
+            .hiw-payment-grid { grid-template-columns: 1fr; }
+            .hiw-payment-inner h2 { font-size: 24px; }
+            .hiw-cta h2 { font-size: 26px; }
+            .hiw-faq-section h2 { font-size: 22px; }
+            .faq-question { font-size: 13.5px; padding: 16px 18px; }
+            .faq-answer { padding: 0 18px 16px; font-size: 13px; }
+            .hiw-lock-banner { padding: 20px 18px; }
+            .hiw-lock-icon { font-size: 36px; }
+            .hiw-lock-text h4 { font-size: 16px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ========== NAVBAR ========== -->
+    <header class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-inner">
+                <a href="{{ url_for('index') }}" class="logo">
+                    <span class="logo-icon">🏠</span>
+                    <span class="logo-text">Ghar<span class="accent">Seva</span></span>
+                </a>
+                <div class="nav-center">
+                    <nav class="nav-links" id="navLinks">
+                        <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+                        <a href="{{ url_for('service') }}" class="nav-link">Services</a>
+                        <a href="{{ url_for('how_it_works') }}" class="nav-link" style="color:var(--orange);background:#fff3ee;">How it works</a>
+                        <a href="#" class="nav-link">Pricing</a>
+                        <a href="#" class="nav-link">Contact</a>
+                    </nav>
+                </div>
+                <div class="nav-actions">
+                    {% if current_user.logged_in %}
+                    <div class="user-menu" id="userMenu">
+                        <button class="user-trigger" id="userTrigger">
+                            <span class="user-avatar">{{ current_user.name[0].upper() }}</span>
+                            <span class="user-name-text">{{ current_user.name.split()[0] }}</span>
+                            <span class="user-chevron">▼</span>
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <div class="ud-header">
+                                <div class="ud-avatar">{{ current_user.name[0].upper() }}</div>
+                                <div class="ud-header-info">
+                                    <div class="ud-name">{{ current_user.name }}</div>
+                                    <div class="ud-email">{{ current_user.email }}</div>
+                                    <span class="ud-badge">{{ current_user.role }}</span>
+                                </div>
+                            </div>
+                            <div class="ud-divider"></div>
+                            <a href="#" class="ud-item"><span>👤</span> My Profile</a>
+                            <a href="#" class="ud-item"><span>📋</span> My Bookings</a>
+                            <a href="#" class="ud-item"><span>⚙️</span> Settings</a>
+                            <div class="ud-divider"></div>
+                            <a href="{{ url_for('logout') }}" class="ud-item ud-logout"><span>🚪</span> Logout</a>
+                        </div>
+                    </div>
+                    {% else %}
+                    <a href="{{ url_for('login') }}"><button class="btn btn-ghost">Log In</button></a>
+                    <a href="{{ url_for('signup') }}"><button class="btn btn-primary">Sign Up</button></a>
+                    {% endif %}
+                    <button class="hamburger" id="hamburger" aria-label="Menu">
+                        <span></span><span></span><span></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Drawer -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="mobile-drawer" id="mobileDrawer">
+        <div class="drawer-header">
+            <a href="{{ url_for('index') }}" class="logo">
+                <span class="logo-icon">🏠</span>
+                <span class="logo-text">Ghar<span class="accent">Seva</span></span>
+            </a>
+            <button class="drawer-close" id="drawerClose">✕</button>
+        </div>
+        <nav class="drawer-nav">
+            <a href="{{ url_for('index') }}" class="drawer-link">Home</a>
+            <a href="{{ url_for('service') }}" class="drawer-link">Services</a>
+            <a href="{{ url_for('how_it_works') }}" class="drawer-link" style="color:var(--orange);">How it works</a>
+            <a href="#" class="drawer-link">Pricing</a>
+            <a href="#" class="drawer-link">Contact</a>
+        </nav>
+        <div class="drawer-actions">
+            {% if current_user.logged_in %}
+            <div class="drawer-user-info">
+                <div class="drawer-user-avatar">{{ current_user.name[0].upper() }}</div>
+                <div>
+                    <div class="drawer-user-name">{{ current_user.name }}</div>
+                    <div class="drawer-user-email">{{ current_user.email }}</div>
+                    <span class="ud-badge">{{ current_user.role }}</span>
+                </div>
+            </div>
+            <a href="#" style="text-decoration:none;"><button class="btn btn-ghost full-width">📋 My Bookings</button></a>
+            <a href="{{ url_for('logout') }}" style="text-decoration:none;"><button class="btn btn-logout full-width">🚪 Logout</button></a>
+            {% else %}
+            <a href="{{ url_for('login') }}"><button class="btn btn-ghost full-width">Log In</button></a>
+            <a href="{{ url_for('signup') }}"><button class="btn btn-primary full-width">Sign Up — Get ₹100 Off</button></a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ========== PAGE ========== -->
+    <div class="hiw-page">
+
+        <!-- STEPS -->
+        <section class="hiw-steps-wrap">
+            <p class="hiw-section-label">The Process</p>
+            <h2 class="hiw-section-title">Your Journey in <span class="gradient-text">6 Simple Steps</span></h2>
+
+            <!-- STEP 1 -->
+            <div class="hiw-step">
+                <div class="hiw-card">
+                    <div class="hiw-card-num">Step 01</div>
+                    <div class="hiw-card-icon">📋</div>
+                    <h3>Create Your Account</h3>
+                    <p>New to Ghar Seva? Sign up in under 60 seconds with your name, email, and phone number. No OTP wait loops, no unnecessary forms — just quick and clean onboarding.</p>
+                    <span class="hiw-card-tag">✨ Free Forever</span>
+                </div>
+                <div class="hiw-connector">
+                    <div class="hiw-connector-line top"></div>
+                    <div class="hiw-connector-circle">1</div>
+                    <div class="hiw-connector-line"></div>
+                </div>
+                <div></div>
+            </div>
+
+            <!-- STEP 2 -->
+            <div class="hiw-step flip">
+                <div class="hiw-card">
+                    <div class="hiw-card-num">Step 02</div>
+                    <div class="hiw-card-icon">🔐</div>
+                    <h3>Log In Securely</h3>
+                    <p>Already have an account? Log in with your email and password. Your session is saved so you don't have to log in every time — your profile, bookings, and preferences stay intact.</p>
+                    <span class="hiw-card-tag">🔒 Secure Login</span>
+                </div>
+                <div class="hiw-connector">
+                    <div class="hiw-connector-line top"></div>
+                    <div class="hiw-connector-circle">2</div>
+                    <div class="hiw-connector-line"></div>
+                </div>
+                <div></div>
+            </div>
+
+            <!-- STEP 3 -->
+            <div class="hiw-step">
+                <div class="hiw-card">
+                    <div class="hiw-card-num">Step 03</div>
+                    <div class="hiw-card-icon">🔧</div>
+                    <h3>Browse & Pick a Service</h3>
+                    <p>Head to the Services page and filter by category — Plumbing, Electrician, AC Repair, Cleaning, and more. Each service shows ratings, pricing, and estimated arrival time so you always know what you're getting.</p>
+                    <span class="hiw-card-tag">📍 12+ Categories</span>
+                </div>
+                <div class="hiw-connector">
+                    <div class="hiw-connector-line top"></div>
+                    <div class="hiw-connector-circle">3</div>
+                    <div class="hiw-connector-line"></div>
+                </div>
+                <div></div>
+            </div>
+
+            <!-- LOGIN GATE NOTICE (between step 3 and 4) -->
+            <div class="hiw-lock-banner">
+                <div class="hiw-lock-icon">🔒</div>
+                <div class="hiw-lock-text">
+                    <h4>Login Required to Book</h4>
+                    <p>To protect you and our workers, booking is only available to logged-in users. If you're browsing as a guest, you'll be redirected to login before confirming any booking. It takes less than a minute!</p>
+                </div>
+                <a href="{{ url_for('login') }}" style="text-decoration:none;" class="hiw-lock-btn">
+                    <button class="btn btn-primary">Log In Now</button>
+                </a>
+            </div>
+
+            <!-- STEP 4 -->
+            <div class="hiw-step flip">
+                <div class="hiw-card">
+                    <div class="hiw-card-num">Step 04</div>
+                    <div class="hiw-card-icon">⭐</div>
+                    <h3>Choose Your Expert</h3>
+                    <p>We show you available workers near you, ranked by work experience and customer ratings. Browse their profiles, see past reviews, and pick the professional you trust most — the choice is always yours.</p>
+                    <span class="hiw-card-tag">🏆 Verified Professionals</span>
+                </div>
+                <div class="hiw-connector">
+                    <div class="hiw-connector-line top"></div>
+                    <div class="hiw-connector-circle">4</div>
+                    <div class="hiw-connector-line"></div>
+                </div>
+                <div></div>
+            </div>
+
+            <!-- STEP 5 -->
+            <div class="hiw-step">
+                <div class="hiw-card">
+                    <div class="hiw-card-num">Step 05</div>
+                    <div class="hiw-card-icon">📅</div>
+                    <h3>Pick a Time Slot</h3>
+                    <p>Select a date and time slot that works for you. The worker gets notified instantly and must accept the booking within minutes. If they're unavailable or decline, you're shown other top-rated alternatives — no dead ends.</p>
+                    <span class="hiw-card-tag">⚡ Instant Confirmation</span>
+                </div>
+                <div class="hiw-connector">
+                    <div class="hiw-connector-line top"></div>
+                    <div class="hiw-connector-circle">5</div>
+                    <div class="hiw-connector-line"></div>
+                </div>
+                <div></div>
+            </div>
+
+            <!-- STEP 6 -->
+            <div class="hiw-step flip">
+                <div class="hiw-card">
+                    <div class="hiw-card-num">Step 06</div>
+                    <div class="hiw-card-icon">💳</div>
+                    <h3>Pay Online — Done!</h3>
+                    <p>Once the job is accepted, pay securely online via UPI, card, or net banking — no cash handling, no awkward change conversations. After the work is done, rate your experience to help the community.</p>
+                    <span class="hiw-card-tag">🛡️ 100% Secure Payments</span>
+                </div>
+                <div class="hiw-connector">
+                    <div class="hiw-connector-line top"></div>
+                    <div class="hiw-connector-circle">6</div>
+                    <div class="hiw-connector-line"></div>
+                </div>
+                <div></div>
+            </div>
+
+        </section>
+
+        <!-- PAYMENT SECTION -->
+        <section class="hiw-payment-section">
+            <div class="hiw-payment-inner">
+                <h2>Zero Cash. Zero Worry. 💸</h2>
+                <p>We're 100% cashless — every payment is secure, tracked, and refundable if something goes wrong.</p>
+                <div class="hiw-payment-grid">
+                    <div class="hiw-pay-card">
+                        <div class="hiw-pay-icon">📱</div>
+                        <h4>UPI & Mobile Pay</h4>
+                        <p>GPay, PhonePe, Paytm — pay instantly with the app you already use every day.</p>
+                    </div>
+                    <div class="hiw-pay-card">
+                        <div class="hiw-pay-icon">💳</div>
+                        <h4>Cards & Net Banking</h4>
+                        <p>All major debit &amp; credit cards accepted. EMI options available for large jobs.</p>
+                    </div>
+                    <div class="hiw-pay-card">
+                        <div class="hiw-pay-icon">🔄</div>
+                        <h4>Easy Refunds</h4>
+                        <p>Job not done right? Raise a dispute and get your money back within 48 hours — no questions asked.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="hiw-faq-section">
+            <h2>Frequently Asked <span class="gradient-text">Questions</span></h2>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    Can I book without creating an account?
+                    <span class="faq-chevron">▼</span>
+                </button>
+                <div class="faq-answer">
+                    No — you need to be logged in to book a service. This protects both you and our workers. Registration is free and takes less than 60 seconds.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    What if the worker doesn't accept my booking?
+                    <span class="faq-chevron">▼</span>
+                </button>
+                <div class="faq-answer">
+                    If a worker is unavailable or declines, we automatically show you other top-rated professionals in your area. You're never left without options, and payment is only charged after acceptance.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    How are workers verified and ranked?
+                    <span class="faq-chevron">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Every professional on Ghar Seva is background-checked and skill-verified before being listed. They are ranked by years of experience, customer ratings, and job completion rate — so the best always shows up first.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    Is cash payment accepted at the door?
+                    <span class="faq-chevron">▼</span>
+                </button>
+                <div class="faq-answer">
+                    No. Ghar Seva is 100% cashless. All payments are made online before or after service completion. This eliminates payment disputes and keeps the experience transparent for both parties.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    Can I reschedule or cancel a booking?
+                    <span class="faq-chevron">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Yes! You can reschedule or cancel from your "My Bookings" section up to 2 hours before the slot. Cancellations made within 2 hours may incur a small fee to compensate the worker's travel time.
+                </div>
+            </div>
+
+        </section>
+
+        <!-- CTA -->
+        <section class="hiw-cta">
+            <h2>Ready to Get Started?</h2>
+            <p>Join 10,000+ happy homes. Book your first service in under 2 minutes.</p>
+            <div class="hiw-cta-btns">
+                <a href="{{ url_for('signup') }}" style="text-decoration:none;">
+                    <button class="btn-white">Create Free Account</button>
+                </a>
+                <a href="{{ url_for('service') }}" style="text-decoration:none;">
+                    <button class="btn-outline-white">Browse Services</button>
+                </a>
+            </div>
+        </section>
+
+        <!-- ========== FOOTER ========== -->
+        <footer class="footer">
+            <div class="footer-container">
+                <div class="footer-grid">
+                    <div class="footer-col">
+                        <a href="{{ url_for('index') }}" class="footer-logo">
+                            <span class="logo-icon">🏠</span>
+                            <span class="footer-logo-text">Ghar<span class="accent">Seva</span></span>
+                        </a>
+                        <p class="footer-desc">Making home services easy, reliable, and affordable for every Indian household. Trusted by 10,000+ happy customers.</p>
+                        <div class="social-links">
+                            <a href="#" class="social-link"><i class="fa-brands fa-facebook"></i></a>
+                            <a href="#" class="social-link"><i class="fa-brands fa-instagram"></i></a>
+                            <a href="#" class="social-link"><i class="fa-brands fa-twitter"></i></a>
+                            <a href="#" class="social-link"><i class="fa-brands fa-linkedin"></i></a>
+                        </div>
+                    </div>
+                    <div class="footer-col">
+                        <h4 class="footer-title">Quick Links</h4>
+                        <ul class="footer-links">
+                            <li><a href="#">About Us</a></li>
+                            <li><a href="#">Careers</a></li>
+                            <li><a href="#">Blog</a></li>
+                            <li><a href="#">Press</a></li>
+                            <li><a href="#">Partners</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h4 class="footer-title">Our Services</h4>
+                        <ul class="footer-links">
+                            <li><a href="#">Plumbing</a></li>
+                            <li><a href="#">Electrical</a></li>
+                            <li><a href="#">Cleaning</a></li>
+                            <li><a href="#">Carpentry</a></li>
+                            <li><a href="#">AC Repair</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h4 class="footer-title">Support</h4>
+                        <ul class="footer-links">
+                            <li><a href="#">Help Center</a></li>
+                            <li><a href="#">Terms of Service</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                            <li><a href="#">Refund Policy</a></li>
+                            <li><a href="#">FAQs</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h4 class="footer-title">Contact Us</h4>
+                        <ul class="footer-contact">
+                            <li>📞 <a href="tel:9313464150">+919313464150</a></li>
+                            <li>📩 <a href="mailto:jeelptl0705@gmail.com">jeelptl0705@gmail.com</a></li>
+                            <li>📍 Anand, Gujarat</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2026 Ghar Seva. All rights reserved. | Making homes better, one service at a time.</p>
+                </div>
+            </div>
+        </footer>
+
+    </div><!-- /hiw-page -->
+
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+        });
+
+        // Mobile drawer
+        const hamburger = document.getElementById('hamburger');
+        const drawer = document.getElementById('mobileDrawer');
+        const overlay = document.getElementById('mobileOverlay');
+        const drawerClose = document.getElementById('drawerClose');
+
+        function openDrawer() { drawer.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden'; }
+        function closeDrawer() { drawer.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = ''; }
+
+        if (hamburger) hamburger.addEventListener('click', e => { e.stopPropagation(); openDrawer(); });
+        if (drawerClose) drawerClose.addEventListener('click', closeDrawer);
+        if (overlay) overlay.addEventListener('click', closeDrawer);
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+        // User menu dropdown
+        const userTrigger = document.getElementById('userTrigger');
+        const userMenu = document.getElementById('userMenu');
+        const userDropdown = document.getElementById('userDropdown');
+        if (userTrigger) {
+            userTrigger.addEventListener('click', e => {
+                e.stopPropagation();
+                const open = userDropdown.classList.contains('open');
+                userMenu.classList.toggle('open', !open);
+                userDropdown.classList.toggle('open', !open);
+            });
+            document.addEventListener('click', () => {
+                userMenu.classList.remove('open');
+                userDropdown.classList.remove('open');
+            });
+            userDropdown.addEventListener('click', e => e.stopPropagation());
+        }
+
+        // FAQ accordion
+        document.querySelectorAll('.faq-question').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const item = btn.closest('.faq-item');
+                const isOpen = item.classList.contains('open');
+                document.querySelectorAll('.faq-item').forEach(f => f.classList.remove('open'));
+                if (!isOpen) item.classList.add('open');
+            });
+        });
+    </script>
+
+</body>
+</html>

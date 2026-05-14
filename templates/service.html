@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Ghar Seva — Services</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/service.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+
+<body>
+    <header class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-inner">
+                <a href="{{ url_for('index') }}" class="logo">
+                    <span class="logo-icon">🏠</span>
+                    <span class="logo-text">Ghar<span class="accent">Seva</span></span>
+                </a>
+                <div class="nav-center">
+                    <nav class="nav-links" id="navLinks">
+                        <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+                        <a href="{{ url_for('service') }}" class="nav-link">Services</a>
+                        <a href="{{ url_for('how_it_works')}}" class="nav-link">How it works</a>
+                        <a href="#" class="nav-link">Pricing</a>
+                        <a href="#" class="nav-link">Contact</a>
+                    </nav>
+                </div>
+                <div class="nav-actions">
+                    {% if current_user.logged_in %}
+                    <div class="user-menu" id="userMenu">
+                        <button class="user-trigger" id="userTrigger">
+                            <span class="user-avatar">{{ current_user.name[0].upper() }}</span>
+                            <span class="user-name-text">{{ current_user.name.split()[0] }}</span>
+                            <span class="user-chevron">▼</span>
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <div class="ud-header">
+                                <div class="ud-avatar">{{ current_user.name[0].upper() }}</div>
+                                <div class="ud-header-info">
+                                    <div class="ud-name">{{ current_user.name }}</div>
+                                    <div class="ud-email">{{ current_user.email }}</div>
+                                    <span class="ud-badge">{{ current_user.role }}</span>
+                                </div>
+                            </div>
+                            <div class="ud-divider"></div>
+                            <a href="#" class="ud-item"><span>👤</span> My Profile</a>
+                            <a href="#" class="ud-item"><span>📋</span> My Bookings</a>
+                            <a href="#" class="ud-item"><span>⚙️</span> Settings</a>
+                            <div class="ud-divider"></div>
+                            <a href="{{ url_for('logout') }}" class="ud-item ud-logout"><span>🚪</span> Logout</a>
+                        </div>
+                    </div>
+                    {% else %}
+                    <a href="{{ url_for('login') }}"><button class="btn btn-ghost">Log In</button></a>
+                    <a href="{{ url_for('signup') }}"><button class="btn btn-primary">Sign Up</button></a>
+                    {% endif %}
+                    <button class="hamburger" id="hamburger" aria-label="Menu">
+                        <span></span><span></span><span></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="mobile-drawer" id="mobileDrawer">
+        <div class="drawer-header">
+            <a href="{{ url_for('index') }}" class="logo">
+                <span class="logo-icon">🏠</span>
+                <span class="logo-text">Ghar<span class="accent">Seva</span></span>
+            </a>
+            <button class="drawer-close" id="drawerClose">✕</button>
+        </div>
+        <nav class="drawer-nav">
+            <a href="{{ url_for('index') }}" class="drawer-link">Home</a>
+            <a href="{{ url_for('service') }}" class="drawer-link">Services</a>
+            <a href="#" class="drawer-link">How it works</a>
+            <a href="#" class="drawer-link">Pricing</a>
+            <a href="#" class="drawer-link">Contact</a>
+        </nav>
+        <div class="drawer-actions">
+            {% if current_user.logged_in %}
+            <div class="drawer-user-info">
+                <div class="drawer-user-avatar">{{ current_user.name[0].upper() }}</div>
+                <div>
+                    <div class="drawer-user-name">{{ current_user.name }}</div>
+                    <div class="drawer-user-email">{{ current_user.email }}</div>
+                    <span class="ud-badge">{{ current_user.role }}</span>
+                </div>
+            </div>
+            <a href="#" style="text-decoration:none;"><button class="btn btn-ghost full-width">📋 My
+                    Bookings</button></a>
+            <a href="{{ url_for('logout') }}" style="text-decoration:none;"><button class="btn btn-logout full-width">🚪
+                    Logout</button></a>
+            {% else %}
+            <a href="{{ url_for('login') }}"><button class="btn btn-ghost full-width">Log In</button></a>
+            <a href="{{ url_for('signup') }}"><button class="btn btn-primary full-width">Sign Up</button></a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Filter sidebar overlay for mobile -->
+    <div class="filter-overlay" id="filterOverlay"></div>
+
+    <!-- MAIN LAYOUT -->
+    <div class="services-page">
+
+        <!-- LEFT SIDEBAR -->
+        <aside class="filters-sidebar" id="filtersSidebar">
+            <div class="sidebar-header-mobile">
+                <span>Filter by Category</span>
+                <button class="sidebar-close-btn" id="sidebarClose">✕</button>
+            </div>
+            <div class="category-list" id="categoryList">
+                <button class="category-btn active" data-category="all">All Services</button>
+                <button class="category-btn" data-category="Plumbing">🔧 Plumbing</button>
+                <button class="category-btn" data-category="Electrician">⚡ Electrician</button>
+                <button class="category-btn" data-category="Cleaning">🧹 Cleaning</button>
+                <button class="category-btn" data-category="Carpenter">🛠️ Carpenter</button>
+                <button class="category-btn" data-category="Painter">🎨 Painter</button>
+                <button class="category-btn" data-category="AC Repair">❄️ AC Repair</button>
+                <button class="category-btn" data-category="Security">🔒 Security</button>
+                <button class="category-btn" data-category="Laundry">🧺 Laundry</button>
+                <button class="category-btn" data-category="Appliances">📺 Appliance Repair</button>
+                <button class="category-btn" data-category="Pest Control">🐜 Pest Control</button>
+                <button class="category-btn" data-category="Gas">🔴 Gas Technician</button>
+            </div>
+        </aside>
+
+        <!-- RIGHT SECTION -->
+        <main class="services-main">
+            <div class="services-header">
+                <div class="services-header-top">
+                    <h2>Our <span class="gradient-text">Services</span></h2>
+                    <!-- Mobile filter toggle button -->
+                    <button class="filter-toggle-btn" id="filterToggle">
+                        <span class="filter-btn-icon">☰</span> Filter
+                    </button>
+                </div>
+                <p id="resultsCount">Showing all services</p>
+            </div>
+            <div class="service-cards-grid" id="serviceCardsGrid"></div>
+        </main>
+    </div>
+
+    <!-- ========== SERVICE DETAIL MODAL ========== -->
+    <div class="detail-overlay" id="detailOverlay">
+        <div class="detail-panel" id="detailPanel">
+
+            <button class="detail-close" id="detailClose">✕</button>
+
+            <!-- Service Hero -->
+            <div class="detail-hero">
+                <div class="detail-icon" id="dIcon"></div>
+                <div class="detail-hero-info">
+                    <h2 class="detail-name" id="dName"></h2>
+                    <p class="detail-desc" id="dDesc"></p>
+                    <div class="detail-meta">
+                        <span class="dmeta-chip" id="dPrice"></span>
+                        <span class="dmeta-chip dmeta-rating" id="dRating"></span>
+                        <span class="dmeta-chip dmeta-eta" id="dEta"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sub Services -->
+            <div class="detail-section">
+                <h3 class="detail-sec-title">What's Included</h3>
+                <div class="sub-services-grid" id="dSubServices"></div>
+            </div>
+
+            <!-- Worker Cards -->
+            <div class="detail-section">
+                <h3 class="detail-sec-title">Available Experts Near You</h3>
+                <div class="workers-grid" id="dWorkers"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/service.js') }}"></script>
+</body>
+
+</html>

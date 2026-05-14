@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Ghar Seva — Premium Home Services</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/hero.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/toast.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+
+<body>
+    <header class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-inner">
+
+                <a href="{{ url_for('index') }}" class="logo">
+                    <span class="logo-icon">🏠</span>
+                    <span class="logo-text">Ghar<span class="accent">Seva</span></span>
+                </a>
+
+                <div class="nav-center">
+                    <nav class="nav-links" id="navLinks">
+                        <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+                        <a href="{{ url_for('service') }}" class="nav-link">Services</a>
+                        <a href="{{ url_for('how_it_works') }}" class="nav-link">How it works</a>
+                        <a href="#" class="nav-link">Pricing</a>
+                        <a href="#" class="nav-link">Contact</a>
+                    </nav>
+                </div>
+
+                <div class="nav-actions">
+                    {% if current_user.logged_in %}
+                    <div class="user-menu" id="userMenu">
+                        <button class="user-trigger" id="userTrigger">
+                            <span class="user-avatar">{{ current_user.name[0].upper() }}</span>
+                            <span class="user-name-text">{{ current_user.name.split()[0] }}</span>
+                            <span class="user-chevron">▼</span>
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <div class="ud-header">
+                                <div class="ud-avatar">{{ current_user.name[0].upper() }}</div>
+                                <div class="ud-header-info">
+                                    <div class="ud-name">{{ current_user.name }}</div>
+                                    <div class="ud-email">{{ current_user.email }}</div>
+                                    <span class="ud-badge">{{ current_user.role }}</span>
+                                </div>
+                            </div>
+                            <div class="ud-divider"></div>
+                            <a href="#" class="ud-item"><span>👤</span> My Profile</a>
+                            <a href="#" class="ud-item"><span>📋</span> My Bookings</a>
+                            <a href="#" class="ud-item"><span>⚙️</span> Settings</a>
+                            <div class="ud-divider"></div>
+                            <a href="{{ url_for('logout') }}" class="ud-item ud-logout"><span>🚪</span> Logout</a>
+                        </div>
+                    </div>
+                    {% else %}
+                    <a href="{{ url_for('login') }}"><button class="btn btn-ghost">Log In</button></a>
+                    <a href="{{ url_for('signup') }}"><button class="btn btn-primary">Sign Up</button></a>
+                    {% endif %}
+                    <button class="hamburger" id="hamburger" aria-label="Menu">
+                        <span></span><span></span><span></span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="mobile-drawer" id="mobileDrawer">
+        <div class="drawer-header">
+            <a href="{{ url_for('index') }}" class="logo">
+                <span class="logo-icon">🏠</span>
+                <span class="logo-text">Ghar<span class="accent">Seva</span></span>
+            </a>
+            <button class="drawer-close" id="drawerClose">✕</button>
+        </div>
+        <div class="drawer-search">
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="mobileSearch" placeholder="Search services...">
+            </div>
+        </div>
+        <nav class="drawer-nav">
+            <a href="{{ url_for('index') }}" class="drawer-link">Home</a>
+            <a href="{{ url_for('service') }}" class="drawer-link">Services</a>
+            <a href="{{ url_for('how_it_works') }}" class="drawer-link">How it works</a>
+            <a href="#" class="drawer-link">Pricing</a>
+            <a href="#" class="drawer-link">Contact</a>
+        </nav>
+        <div class="drawer-actions">
+            {% if current_user.logged_in %}
+            <div class="drawer-user-info">
+                <div class="drawer-user-avatar">{{ current_user.name[0].upper() }}</div>
+                <div>
+                    <div class="drawer-user-name">{{ current_user.name }}</div>
+                    <div class="drawer-user-email">{{ current_user.email }}</div>
+                    <span class="ud-badge">{{ current_user.role }}</span>
+                </div>
+            </div>
+            <a href="#" style="text-decoration:none;"><button class="btn btn-ghost full-width">📋 My
+                    Bookings</button></a>
+            <a href="{{ url_for('logout') }}" style="text-decoration:none;"><button class="btn btn-logout full-width">🚪
+                    Logout</button></a>
+            {% else %}
+            <a href="{{ url_for('login') }}"><button class="btn btn-ghost full-width">Log In</button></a>
+            <a href="{{ url_for('signup') }}"><button class="btn btn-primary full-width">Sign Up — Get ₹100
+                    Off</button></a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ========== HERO SECTION ========== -->
+    <section class="hs-wrap" id="heroSection">
+        <div class="hs-left">
+            <div class="hs-badge"><span class="hs-dot"></span>Trusted by 10,000+ happy homes across India</div>
+            <h1 class="hs-heading">Your Home Deserves<br>The Best <span class="hs-orange">Care.</span></h1>
+            <p class="hs-sub">Book verified professionals in 60 seconds — plumbing, electrical, AC repair &amp; more. At your door in under 20 minutes, with a 100% work guarantee.</p>
+            <div class="hs-trust">
+                <div class="hs-trust-item"><span class="hs-trust-icon">✅</span> Verified Pros</div>
+                <div class="hs-trust-item"><span class="hs-trust-icon">🛡️</span> Work Guarantee</div>
+                <div class="hs-trust-item"><span class="hs-trust-icon">⚡</span> 20-Min Arrival</div>
+                <div class="hs-trust-item"><span class="hs-trust-icon">💳</span> Online Payment</div>
+            </div>
+            <div class="hs-search-block">
+                <div class="hs-search-wrap" id="hsSearchWrap">
+                    <span class="hs-search-ico">🔍</span>
+                    <input type="text" class="hs-search-input" id="hsSearchInput" placeholder="Search a service, e.g. Plumber, AC Repair…" autocomplete="off" />
+                    <button class="hs-clear-btn" id="hsClearBtn" title="Clear">✕</button>
+                </div>
+                <button class="hs-book-btn" id="hsBookBtn">
+                    <span id="hsBookBtnText">Book Now →</span>
+                    <span class="hs-btn-loader" id="hsBtnLoader"></span>
+                </button>
+            </div>
+            <div class="hs-suggestions" id="hsSuggestions"></div>
+            <div class="hs-chips">
+                <button class="hs-chip" onclick="hsSetSearch('Plumber')">🔧 Plumber</button>
+                <button class="hs-chip" onclick="hsSetSearch('Electrician')">⚡ Electrician</button>
+                <button class="hs-chip" onclick="hsSetSearch('Home Cleaning')">🧹 Cleaning</button>
+                <button class="hs-chip" onclick="hsSetSearch('AC Repair')">❄️ AC Repair</button>
+                <button class="hs-chip" onclick="hsSetSearch('Carpenter')">🛠️ Carpenter</button>
+            </div>
+        </div>
+        <div class="hs-right">
+            <img class="hs-img-desktop" src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=900&q=85&auto=format&fit=crop" alt="Professional technician repairing home appliances" loading="eager" />
+            <img class="hs-img-mobile" src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=90&auto=format&fit=crop&crop=center" alt="Home service professional" loading="eager" />
+            <div class="hs-img-overlay"></div>
+            <div class="hs-fc hs-fc-top">
+                <div class="hs-fc-avatar">R</div>
+                <div>
+                    <div class="hs-fc-name">Rahul Mehta</div>
+                    <div class="hs-fc-role">Verified Electrician · 847 jobs</div>
+                    <div class="hs-fc-stars">★★★★★ 4.9</div>
+                </div>
+            </div>
+            <div class="hs-fc hs-fc-bottom">
+                <div class="hs-fc-stat-label">Bookings Today</div>
+                <div class="hs-fc-stat-val">1,248</div>
+                <div class="hs-fc-stat-sub">across Gujarat 🇮🇳</div>
+            </div>
+        </div>
+    </section>
+    <!-- ========== / HERO SECTION ========== -->
+
+    <section class="container services-section" id="services">
+        <div class="section-inner">
+            <h2 class="section-title">Our Services</h2>
+            <p class="section-sub">Professional services, verified workers, online payment — no cash headaches.</p>
+
+            <div class="service-grid">
+
+                <div class="service-card" data-category="repair"
+                    onclick="openServiceModal('Plumber','🔧','Pipes, taps, drainage — we fix it all fast.','Leaks, pipes & fittings','Starting ₹199','20 min','4.9')">
+                    <div class="sc-badge">Popular</div>
+                    <div class="sc-icon">🔧</div>
+                    <div class="sc-name">Plumber</div>
+                    <div class="sc-desc">Leaks, pipes & fittings</div>
+                    <div class="sc-meta"><span>⭐ 4.9</span><span>₹199+</span></div>
+                </div>
+
+                <div class="service-card" data-category="repair installation"
+                    onclick="openServiceModal('Electrician','⚡','Safe & certified electrical work at your doorstep.','Wiring, switches & fans','Starting ₹249','25 min','4.8')">
+                    <div class="sc-icon">⚡</div>
+                    <div class="sc-name">Electrician</div>
+                    <div class="sc-desc">Wiring, switches & fans</div>
+                    <div class="sc-meta"><span>⭐ 4.8</span><span>₹249+</span></div>
+                </div>
+
+                <div class="service-card" data-category="cleaning"
+                    onclick="openServiceModal('Home Cleaning','🧹','Spotless home, fresh environment, expert team.','Deep clean & housekeeping','Starting ₹399','30 min','4.9')">
+                    <div class="sc-badge">Top Rated</div>
+                    <div class="sc-icon">🧹</div>
+                    <div class="sc-name">Home Cleaning</div>
+                    <div class="sc-desc">Deep clean & housekeeping</div>
+                    <div class="sc-meta"><span>⭐ 4.9</span><span>₹399+</span></div>
+                </div>
+
+                <div class="service-card" data-category="repair installation"
+                    onclick="openServiceModal('Carpenter','🛠️','Custom furniture, repairs & woodwork done right.','Furniture & woodwork','Starting ₹299','35 min','4.7')">
+                    <div class="sc-icon">🛠️</div>
+                    <div class="sc-name">Carpenter</div>
+                    <div class="sc-desc">Furniture & woodwork</div>
+                    <div class="sc-meta"><span>⭐ 4.7</span><span>₹299+</span></div>
+                </div>
+
+                <div class="service-card" data-category="installation"
+                    onclick="openServiceModal('Painter','🎨','Walls that wow — interior & exterior painting.','Interior & exterior walls','Starting ₹499','40 min','4.8')">
+                    <div class="sc-icon">🎨</div>
+                    <div class="sc-name">Painter</div>
+                    <div class="sc-desc">Interior & exterior walls</div>
+                    <div class="sc-meta"><span>⭐ 4.8</span><span>₹499+</span></div>
+                </div>
+
+                <div class="service-card" data-category="repair installation"
+                    onclick="openServiceModal('AC Repair','❄️','Cool again in no time — servicing & gas refills.','AC service & gas refill','Starting ₹349','20 min','4.9')">
+                    <div class="sc-badge">Fast</div>
+                    <div class="sc-icon">❄️</div>
+                    <div class="sc-name">AC Repair</div>
+                    <div class="sc-desc">AC service & gas refill</div>
+                    <div class="sc-meta"><span>⭐ 4.9</span><span>₹349+</span></div>
+                </div>
+
+                <div class="service-card" data-category="security installation"
+                    onclick="openServiceModal('Security','🔒','CCTV, alarms & smart locks installed by experts.','CCTV & smart locks','Starting ₹599','45 min','4.7')">
+                    <div class="sc-icon">🔒</div>
+                    <div class="sc-name">Security</div>
+                    <div class="sc-desc">CCTV & smart locks</div>
+                    <div class="sc-meta"><span>⭐ 4.7</span><span>₹599+</span></div>
+                </div>
+
+                <div class="service-card" data-category="cleaning"
+                    onclick="openServiceModal('Laundry','🧺','Fresh, ironed clothes delivered to your door.','Wash, dry & iron','Starting ₹149','15 min','4.6')">
+                    <div class="sc-icon">🧺</div>
+                    <div class="sc-name">Laundry</div>
+                    <div class="sc-desc">Wash, dry & iron</div>
+                    <div class="sc-meta"><span>⭐ 4.6</span><span>₹149+</span></div>
+                </div>
+
+                <div class="service-card" data-category="repair"
+                    onclick="openServiceModal('Appliance Repair','📺','Fridge, washer, oven — we fix all brands fast.','All home appliances','Starting ₹279','30 min','4.8')">
+                    <div class="sc-icon">📺</div>
+                    <div class="sc-name">Appliance Repair</div>
+                    <div class="sc-desc">All home appliances</div>
+                    <div class="sc-meta"><span>⭐ 4.8</span><span>₹279+</span></div>
+                </div>
+
+                <div class="service-card" data-category="cleaning"
+                    onclick="openServiceModal('Pest Control','🐜','Termites, cockroaches, rodents — gone for good.','Home & office pest removal','Starting ₹449','30 min','4.7')">
+                    <div class="sc-icon">🐜</div>
+                    <div class="sc-name">Pest Control</div>
+                    <div class="sc-desc">Home & office pest removal</div>
+                    <div class="sc-meta"><span>⭐ 4.7</span><span>₹449+</span></div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <a href="{{ url_for('index') }}" class="footer-logo">
+                        <span class="logo-icon">🏠</span>
+                        <span class="footer-logo-text">Ghar<span class="accent">Seva</span></span>
+                    </a>
+                    <p class="footer-desc">Making home services easy, reliable, and affordable for every Indian
+                        household. Trusted by 10,000+ happy customers.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="#" class="social-link"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fa-brands fa-linkedin"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-col">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Press</a></li>
+                        <li><a href="#">Partners</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4 class="footer-title">Our Services</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Plumbing</a></li>
+                        <li><a href="#">Electrical</a></li>
+                        <li><a href="#">Cleaning</a></li>
+                        <li><a href="#">Carpentry</a></li>
+                        <li><a href="#">AC Repair</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4 class="footer-title">Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Refund Policy</a></li>
+                        <li><a href="#">FAQs</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4 class="footer-title">Contact Us</h4>
+                    <ul class="footer-contact">
+                        <li>📞 <a href="tel:9313464150">+919313464150</a></li>
+                        <li>📩 <a href="mailto:jeelptl0705@gmail.com">jeelptl0705@gmail.com</a></li>
+                        <li>📍 Anand, Gujarat</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Ghar Seva. All rights reserved. | Making homes better, one service at a time.</p>
+            </div>
+        </div>
+    </footer>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    <div id="flask-messages" data-messages="{{ messages | tojson }}"></div>
+    {% endwith %}
+
+    <script src="{{ url_for('static', filename='js/toast.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/hero.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+
+</html>
