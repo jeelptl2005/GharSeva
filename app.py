@@ -11,7 +11,7 @@ from bson import ObjectId
 
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__,static_folder="static",template_folder="templates")
 app.secret_key = os.getenv('SECRET_KEY', 'gharseva-fallback-key')
 app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=30)
 app.config['SESSION_COOKIE_HTTPONLY'] = True
