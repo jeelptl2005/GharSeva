@@ -11,13 +11,12 @@ from bson import ObjectId
 
 load_dotenv()
 
-app = Flask(__name__,static_folder="static",template_folder="templates")
+app = Flask(__name__, static_folder="static", template_folder="templates")
 app.secret_key = os.getenv('SECRET_KEY', 'gharseva-fallback-key')
 app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=30)
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SECURE'] = False  # True for HTTPS only
 app.config['REMEMBER_COOKIE_HTTPONLY'] = True
-app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=30)
 
 # ─── Flask-Login Setup ───────────────────────────────────────────────
 login_manager = LoginManager()
@@ -27,16 +26,27 @@ login_manager.login_message = 'Please log in to access this page.'
 login_manager.remember_cookie_duration = timedelta(days=30)
 login_manager.session_protection = "strong"
 
-# MongoDB setup
-client = MongoClient(
-    os.getenv('MONGO_URI'),
-    tls=True,
-    tlsCAFile=certifi.where(),
-)
-db = client[os.getenv('MONGO_DB_NAME', 'GharSeva')]
+# ─── Lazy MongoDB Connection ─────────────────────────────────────────
+_mongo_client = None
 
-users_col = db['users']
-workers_col = db['workers']
+def get_db():
+    global _mongo_client
+    if _mongo_client is None:
+        _mongo_client = MongoClient(
+            os.getenv('MONGO_URI'),
+            tls=True,
+            tlsCAFile=certifi.where(),
+            serverSelectionTimeoutMS=5000,
+            connectTimeoutMS=5000,
+            socketTimeoutMS=5000,
+        )
+    return _mongo_client[os.getenv('MONGO_DB_NAME', 'GharSeva')]
+
+def get_users_col():
+    return get_db()['users']
+
+def get_workers_col():
+    return get_db()['workers']
 
 # ─── User class for Flask-Login ──────────────────────────────────────
 class User(UserMixin):
@@ -49,25 +59,29 @@ class User(UserMixin):
 
     @staticmethod
     def get(user_id):
-        # Try to find in users collection
-        user_data = users_col.find_one({'_id': ObjectId(user_id)})
+        try:
+            oid = ObjectId(user_id)
+        except Exception:
+            return None
+
+        user_data = get_users_col().find_one({'_id': oid})
         if user_data:
             return User(user_data, 'user')
-        
-        # Try workers collection
-        worker_data = workers_col.find_one({'_id': ObjectId(user_id)})
+
+        worker_data = get_workers_col().find_one({'_id': oid})
         if worker_data:
             return User(worker_data, 'worker')
-        
+
         return None
-    
+
     def get_id(self):
-        # Return string representation of user ID
         return str(self.id)
+
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.get(user_id)
+
 
 @login_manager.unauthorized_handler
 def unauthorized():
@@ -86,19 +100,14 @@ google = oauth.register(
 
 # ─── Helper Functions ───────────────────────────────────────────────
 def find_user_by_email(email):
-    u = users_col.find_one({'email': email})
+    u = get_users_col().find_one({'email': email})
     if u:
         return u, 'user'
-    w = workers_col.find_one({'email': email})
+    w = get_workers_col().find_one({'email': email})
     if w:
         return w, 'worker'
     return None, None
 
-def delete_user_session_tokens(user_id):
-    """Delete all session tokens for a user (if you have a tokens collection)"""
-    # Agar tumne sessions store ki hain toh yaha delete karo
-    # Example: db['user_sessions'].delete_many({'user_id': user_id})
-    pass
 
 # ─── Template Context ───────────────────────────────────────────────
 @app.context_processor
@@ -129,15 +138,17 @@ def inject_user():
 def index():
     return render_template('index.html')
 
+
 @app.route('/service')
 def service():
     return render_template('service.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
-    
+
     if request.method == 'POST':
         email = request.form.get('email', '').strip().lower()
         password = request.form.get('password', '')
@@ -153,13 +164,11 @@ def login():
             flash('Incorrect password.', 'error')
             return render_template('login.html')
 
-        # Create User object and login
         user = User(user_data, role)
         login_user(user, remember=remember_me)
-        
+
         flash(f"Welcome back, {user.name}!", 'success')
-        
-        # Redirect to next page or home
+
         next_page = request.args.get('next')
         if next_page:
             return redirect(next_page)
@@ -167,11 +176,12 @@ def login():
 
     return render_template('login.html')
 
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
-        
+
     if request.method == 'POST':
         role = request.form.get('role', 'user')
         name = request.form.get('name', '').strip()
@@ -179,7 +189,6 @@ def signup():
         phone = request.form.get('phone', '').strip()
         password = request.form.get('password', '')
 
-        # Check duplicate email
         existing, _ = find_user_by_email(email)
         if existing:
             flash('An account with this email already exists.', 'error')
@@ -200,7 +209,7 @@ def signup():
                 'auth_provider': 'local',
                 'created_at': now,
             }
-            workers_col.insert_one(doc)
+            get_workers_col().insert_one(doc)
         else:
             doc = {
                 'name': name,
@@ -211,12 +220,13 @@ def signup():
                 'auth_provider': 'local',
                 'created_at': now,
             }
-            users_col.insert_one(doc)
+            get_users_col().insert_one(doc)
 
         flash('Account created successfully! Please log in.', 'success')
         return redirect(url_for('login'))
 
     return render_template('signup.html')
+
 
 @app.route('/auth/google')
 def google_login():
@@ -225,10 +235,15 @@ def google_login():
     redirect_uri = url_for('google_callback', _external=True)
     return google.authorize_redirect(redirect_uri)
 
+
 @app.route('/auth/google/callback')
 def google_callback():
-    token = google.authorize_access_token(leeway=60)
-    user_info = token.get('userinfo')
+    try:
+        token = google.authorize_access_token(leeway=60)
+        user_info = token.get('userinfo')
+    except Exception as e:
+        flash('Google login failed. Please try again.', 'error')
+        return redirect(url_for('login'))
 
     if not user_info:
         flash('Google login failed. Please try again.', 'error')
@@ -238,16 +253,13 @@ def google_callback():
     name = user_info.get('name', '')
     role = session.pop('oauth_role', 'user')
 
-    # Check if already registered
     existing, existing_role = find_user_by_email(email)
 
     if existing:
-        # Already exists — just log in
         user = User(existing, existing_role)
         login_user(user, remember=True)
         flash(f"Welcome back, {user.name}!", 'success')
     else:
-        # New user via Google
         now = datetime.utcnow()
         doc = {
             'name': name,
@@ -262,10 +274,10 @@ def google_callback():
         if role == 'worker':
             doc['expertise'] = ''
             doc['location'] = ''
-            result = workers_col.insert_one(doc)
+            result = get_workers_col().insert_one(doc)
         else:
-            result = users_col.insert_one(doc)
-        
+            result = get_users_col().insert_one(doc)
+
         doc['_id'] = result.inserted_id
         user = User(doc, role)
         login_user(user, remember=True)
@@ -273,46 +285,25 @@ def google_callback():
 
     return redirect(url_for('index'))
 
+
 @app.route('/logout')
 @login_required
 def logout():
-    """Proper logout function with complete cleanup"""
-    
-    # Debug print
-    print(f"Logging out user: {current_user.email if current_user.is_authenticated else 'Unknown'}")
-    
-    # Store user info for flash message
     user_name = current_user.name if current_user.is_authenticated else "User"
-    
-    # Delete any stored session tokens for this user
-    delete_user_session_tokens(current_user.id)
-    
-    # Flask-Login logout
+
     logout_user()
-    
-    # Clear all session data
     session.clear()
-    
-    # Create response and delete all cookies
+
     resp = make_response(redirect(url_for('index')))
-    
-    # Delete all relevant cookies
-    resp.delete_cookie('session')
-    resp.delete_cookie('remember_token')
     resp.set_cookie('session', '', expires=0, path='/')
     resp.set_cookie('remember_token', '', expires=0, path='/')
-    
-    # Flash success message
+
     flash(f'Goodbye, {user_name}! You have been logged out successfully.', 'success')
-    
-    print("Logout completed - cookies cleared")
-    
     return resp
 
-# Optional: Session cleanup endpoint (for debugging)
+
 @app.route('/clear-session')
 def clear_session():
-    """Emergency session clear endpoint"""
     session.clear()
     resp = make_response(redirect(url_for('index')))
     resp.delete_cookie('session')
@@ -320,21 +311,25 @@ def clear_session():
     flash('Session cleared!', 'info')
     return resp
 
-# ─── Protected Routes ────────────────────────────────────────
+
+# ─── Protected Routes ─────────────────────────────────────────────────
 @app.route('/dashboard')
 @login_required
 def dashboard():
     return render_template('dashboard.html', user=current_user)
+
 
 @app.route('/profile')
 @login_required
 def profile():
     return render_template('profile.html', user=current_user)
 
-# ─── Error Handlers ─────────────────────────────────────────────
+
+# ─── Error Handlers ──────────────────────────────────────────────────
 @app.errorhandler(404)
 def not_found(error):
     return render_template('404.html'), 404
+
 
 @app.errorhandler(500)
 def internal_error(error):
@@ -344,5 +339,3 @@ def internal_error(error):
 @app.route('/how_it_works')
 def how_it_works():
     return render_template('how_it_works.html')
-
-app=app
